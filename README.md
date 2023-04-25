@@ -1,6 +1,6 @@
 # rate-limiter
 
-Simple load balancer made using Express and Redis
+Simple rate-limiter made using Express and Redis
 
 To run locally at localhost:3000 <br/>
 `docker compose up`
