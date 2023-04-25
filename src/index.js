@@ -9,11 +9,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT;
 
-app.use(express.static(path.join(__dirname, "/../client")));
+app.use(express.static(path.join(__dirname, "/../client/dist")));
 app.use(express.json());
 
 app.get("/", rateLimiter, (req, res) => {
-    res.sendFile(path.join(__dirname, "/../client/index.html"));
+    res.sendFile(path.join(__dirname, "/../client/dist/index.html"));
 });
 
 app.get("/limit", rateLimiter, (req, res) => {
