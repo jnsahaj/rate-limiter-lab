@@ -1,34 +1,28 @@
-import redis from "./redis.js";
+export const RateLimiter = class {
+    constructor({ redisClient }) {
+        this.redisClient = redisClient;
+    }
 
-function rateLimiter(req, res, next) {
-    const maxRequests = 3; // Change this value as per your requirement
-    const windowMs = 60 * 1000; // Change this value as per your requirement
-    const userId = req.ip; // Change this value as per your requirement
-    const timestamp = Date.now();
-    const key = `${userId}:${Math.floor(timestamp / windowMs)}`;
+    async slidingWindow({
+        key,
+        windowSizeInMs = 60 * 1000,
+        maxRequestsPerWindow = 10,
+    }) {
+        const now = Date.now();
+        const score = now;
 
-    redis
-        .multi()
-        .set(key, 0, "NX", "EX", windowMs / 1000) // set initial value to 0 if key does not exist
-        .incr(key)
-        .expire(key, windowMs / 1000)
-        .exec((err, results) => {
-            if (err) {
-                return next(err);
-            }
+        // Add a timestamped score to the sorted set for this key
+        await this.redisClient.zadd(key, score, score);
 
-            const currentRequests = results[1][1]; // get value of incremented key
+        // Remove any entries from the set that are older than the sliding window
+        const oldestAllowedScore = now - windowSizeInMs;
 
-            if (currentRequests > maxRequests) {
-                return res.status(429).json({
-                    message: `Too many requests, please try again in ${Math.ceil(
-                        results[2] - timestamp / 1000
-                    )} seconds`,
-                });
-            }
+        await this.redisClient.zremrangebyscore(key, 0, oldestAllowedScore);
 
-            next();
-        });
-}
+        // Count the number of remaining entries in the set
+        const count = await this.redisClient.zcard(key);
 
-export default rateLimiter;
+        // Return true if the number of entries is less than the maximum allowed
+        return count <= maxRequestsPerWindow;
+    }
+};
