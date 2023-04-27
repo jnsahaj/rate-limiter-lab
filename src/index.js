@@ -24,6 +24,45 @@ app.get("/limit", rateLimiter, (req, res) => {
     });
 });
 
+app.get("/limiter", (_, res) => {
+    res.json([
+        {
+            title: "Sliding Window",
+            scheme: "sliding_window",
+            parameters: [
+                {
+                    title: "Max Requests Per Window",
+                    id: "max_requests_per_window",
+                    defaultValue: 10,
+                },
+                {
+                    title: "Window Size",
+                    unit: "ms",
+                    id: "window_size_in_ms",
+                    defaultValue: 60000,
+                },
+            ],
+        },
+        {
+            title: "Token Bucket",
+            scheme: "token_bucket",
+            parameters: [
+                {
+                    title: "Bucket Size",
+                    id: "bucket_size",
+                    defaultValue: 10,
+                },
+                {
+                    title: "Refill Rate",
+                    unit: "ms",
+                    id: "refill_rate_in_ms",
+                    defaultValue: 1000,
+                },
+            ],
+        },
+    ]);
+});
+
 app.listen(PORT, () => {
     console.log(`Listening on port: ${PORT}`);
 });
