@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+import limit from "./services/limiter";
+import LimiterForm from "./components/LimiterForm";
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [successfulRequests, setSuccessfulRequests] = useState(0);
+    const [limitedRequests, setLimitedRequests] = useState(0);
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    const [limiterConfig, setLimiterConfig] = useState();
+
+    const handleLimit = async () => {
+        const result = await limit(limiterConfig);
+        if (result) {
+            setSuccessfulRequests((sr) => sr + 1);
+        } else {
+            setSuccessfulRequests((sr) => sr + 1);
+            setLimitedRequests((lr) => lr + 1);
+        }
+    };
+
+    return (
+        <>
+            <LimiterForm handleFormSubmit={setLimiterConfig} />
+            <div>
+                <div>Total Requests</div>
+                <div>{successfulRequests}</div>
+            </div>
+
+            <div>
+                <div>Limited Requests</div>
+                <div>{limitedRequests}</div>
+            </div>
+
+            <button onClick={handleLimit}>Click</button>
+        </>
+    );
 }
 
-export default App
+export default App;
