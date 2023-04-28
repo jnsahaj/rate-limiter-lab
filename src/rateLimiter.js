@@ -1,4 +1,4 @@
-import { SLIDING_WINDOW_DEFAULTS, TOKEN_BUCKET_DEFAULTS } from "./constants";
+import { SLIDING_WINDOW_DEFAULTS, TOKEN_BUCKET_DEFAULTS } from "./constants.js";
 
 export const RateLimiter = class {
     constructor({ redisClient }) {

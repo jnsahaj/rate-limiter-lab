@@ -1,6 +1,13 @@
 export const SLIDING_WINDOW = "sliding_window";
 export const TOKEN_BUCKET = "token_bucket";
 
+export const DEFAULT_SCHEME = SLIDING_WINDOW;
+
+export const RATE_LIMITER_SCHEMES = {
+    SLIDING_WINDOW,
+    TOKEN_BUCKET,
+};
+
 export const SLIDING_WINDOW_DEFAULTS = {
     max_requests_per_window: 10,
     window_size_in_ms: 60000,

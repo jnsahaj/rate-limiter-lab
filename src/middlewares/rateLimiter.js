@@ -1,7 +1,6 @@
 import { RateLimiter } from "../rateLimiter.js";
 import redisClient from "../redis.js";
-
-const DEFAULT_SCHEME = "sliding_window";
+import { DEFAULT_SCHEME, RATE_LIMITER_SCHEMES } from "../constants.js";
 
 const rateLimiterMiddleware = async (req, res, next) => {
     try {
@@ -12,7 +11,7 @@ const rateLimiterMiddleware = async (req, res, next) => {
 
         let isAllowed = false;
 
-        if (scheme === "sliding_window") {
+        if (scheme === RATE_LIMITER_SCHEMES.SLIDING_WINDOW) {
             const { max_requests_per_window, window_size_in_ms } =
                 limiterParams;
 
@@ -22,7 +21,7 @@ const rateLimiterMiddleware = async (req, res, next) => {
                     parseInt(max_requests_per_window) || undefined,
                 windowSizeInMs: parseInt(window_size_in_ms) || undefined,
             });
-        } else if (scheme === "token_bucket") {
+        } else if (scheme === RATE_LIMITER_SCHEMES.TOKEN_BUCKET) {
             const { bucket_size, refill_rate_in_ms } = limiterParams;
 
             isAllowed = await rateLimiter.tokenBucket({
