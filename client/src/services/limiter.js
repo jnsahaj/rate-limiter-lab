@@ -1,11 +1,7 @@
-async function limit(parameters = {}) {
-    const res = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/limit?` +
-            new URLSearchParams(parameters),
-        {
-            method: "GET",
-        }
-    );
+async function limit() {
+    const res = await fetch(`${import.meta.env.VITE_BASE_URL}/limit?`, {
+        method: "GET",
+    });
     // const data = await res.json();
 
     if (res.status === 429) {

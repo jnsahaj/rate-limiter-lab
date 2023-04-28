@@ -7,10 +7,8 @@ function App() {
     const [successfulRequests, setSuccessfulRequests] = useState(0);
     const [limitedRequests, setLimitedRequests] = useState(0);
 
-    const [limiterConfig, setLimiterConfig] = useState();
-
     const handleLimit = async () => {
-        const result = await limit(limiterConfig);
+        const result = await limit();
         if (result) {
             setSuccessfulRequests((sr) => sr + 1);
         } else {
@@ -19,9 +17,22 @@ function App() {
         }
     };
 
+    const handleLimiterConfigChange = async (limiterConfig) => {
+        await fetch(`${import.meta.env.VITE_BASE_URL}/limit`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(limiterConfig),
+        });
+
+        setLimitedRequests(0);
+        setSuccessfulRequests(0);
+    };
+
     return (
         <>
-            <LimiterForm handleFormSubmit={setLimiterConfig} />
+            <LimiterForm handleFormSubmit={handleLimiterConfigChange} />
             <div>
                 <div>Total Requests</div>
                 <div>{successfulRequests}</div>

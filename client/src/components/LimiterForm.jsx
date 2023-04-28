@@ -22,7 +22,7 @@ const LimiterForm = ({ handleFormSubmit }) => {
     useEffect(() => {
         const fetchLimiters = async () => {
             const response = await fetch(
-                `${import.meta.env.VITE_BASE_URL}/limiter`
+                `${import.meta.env.VITE_BASE_URL}/limiters`
             );
             const data = await response.json();
             setLimiters(data);
@@ -103,10 +103,7 @@ const LimiterForm = ({ handleFormSubmit }) => {
                         );
                     })}
 
-                    <Button
-                        onClick={() => handleFormSubmit(formData)}
-                        type="submit"
-                    >
+                    <Button onClick={() => handleFormSubmit(formData)}>
                         Submit
                     </Button>
                 </>
