@@ -1,3 +1,5 @@
+import { SLIDING_WINDOW_DEFAULTS, TOKEN_BUCKET_DEFAULTS } from "./constants";
+
 export const RateLimiter = class {
     constructor({ redisClient }) {
         this.redisClient = redisClient;
@@ -5,8 +7,8 @@ export const RateLimiter = class {
 
     async slidingWindow({
         key,
-        windowSizeInMs = 60 * 1000,
-        maxRequestsPerWindow = 10,
+        windowSizeInMs = SLIDING_WINDOW_DEFAULTS.window_size_in_ms,
+        maxRequestsPerWindow = SLIDING_WINDOW_DEFAULTS.max_requests_per_window,
     }) {
         const now = Date.now();
         const score = now;
@@ -26,7 +28,11 @@ export const RateLimiter = class {
         return count <= maxRequestsPerWindow;
     }
 
-    async tokenBucket({ key, bucketSize = 5, refillRateInMs = 1000 }) {
+    async tokenBucket({
+        key,
+        bucketSize = TOKEN_BUCKET_DEFAULTS.bucket_size,
+        refillRateInMs = TOKEN_BUCKET_DEFAULTS.refill_rate_in_ms,
+    }) {
         const now = Date.now();
         const timestampKey = `${key}:lastRefillTimestamp`;
         const bucketKey = `${key}:bucket`;

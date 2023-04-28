@@ -4,6 +4,7 @@ import cors from "cors";
 import { fileURLToPath } from "url";
 import rateLimiter from "./middlewares/rateLimiter.js";
 import redis from "./redis.js";
+import { LIMITERS_CONFIG } from "./constants.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,42 +34,7 @@ app.post("/limit", (req, res) => {
 });
 
 app.get("/limiters", (_, res) => {
-    res.json([
-        {
-            title: "Sliding Window",
-            scheme: "sliding_window",
-            parameters: [
-                {
-                    title: "Max Requests Per Window",
-                    id: "max_requests_per_window",
-                    defaultValue: 10,
-                },
-                {
-                    title: "Window Size",
-                    unit: "ms",
-                    id: "window_size_in_ms",
-                    defaultValue: 60000,
-                },
-            ],
-        },
-        {
-            title: "Token Bucket",
-            scheme: "token_bucket",
-            parameters: [
-                {
-                    title: "Bucket Size",
-                    id: "bucket_size",
-                    defaultValue: 5,
-                },
-                {
-                    title: "Refill Rate",
-                    unit: "ms",
-                    id: "refill_rate_in_ms",
-                    defaultValue: 1000,
-                },
-            ],
-        },
-    ]);
+    res.json(LIMITERS_CONFIG);
 });
 
 app.listen(PORT, () => {
