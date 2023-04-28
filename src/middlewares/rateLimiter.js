@@ -8,15 +8,32 @@ const rateLimiter = async (req, res, next) => {
         redisClient,
     });
 
-    const scheme = req.query.scheme || DEFAULT_SCHEME;
+    const limiterParams = await redisClient.hgetall("limiterParams");
+
+    const scheme = limiterParams.scheme || DEFAULT_SCHEME;
 
     if (scheme === "sliding_window") {
-        const { max_requests_per_window, window_size_in_ms } = req.query;
+        const { max_requests_per_window, window_size_in_ms } = limiterParams;
         const isAllowed = await rateLimiter.slidingWindow({
             key: req.ip,
             maxRequestsPerWindow:
                 parseInt(max_requests_per_window) || undefined,
             windowSizeInMs: parseInt(window_size_in_ms) || undefined,
+        });
+
+        if (isAllowed) {
+            return next();
+        } else {
+            return res.status(429).send("Too Many Requests");
+        }
+    }
+
+    if (scheme === "token_bucket") {
+        const { bucket_size, refill_rate_in_ms } = limiterParams;
+        const isAllowed = await rateLimiter.tokenBucket({
+            key: req.ip,
+            bucketSize: parseInt(bucket_size) || undefined,
+            refillRateInMs: parseInt(refill_rate_in_ms) || undefined,
         });
 
         if (isAllowed) {

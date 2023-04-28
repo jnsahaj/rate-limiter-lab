@@ -3,6 +3,7 @@ import path from "path";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import rateLimiter from "./middlewares/rateLimiter.js";
+import redis from "./redis.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,7 +25,14 @@ app.get("/limit", rateLimiter, (req, res) => {
     });
 });
 
-app.get("/limiter", (_, res) => {
+app.post("/limit", (req, res) => {
+    const limiterParams = req.body;
+    redis.flushdb();
+    redis.hmset("limiterParams", limiterParams);
+    res.status(200).json(limiterParams);
+});
+
+app.get("/limiters", (_, res) => {
     res.json([
         {
             title: "Sliding Window",
@@ -50,7 +58,7 @@ app.get("/limiter", (_, res) => {
                 {
                     title: "Bucket Size",
                     id: "bucket_size",
-                    defaultValue: 10,
+                    defaultValue: 5,
                 },
                 {
                     title: "Refill Rate",
