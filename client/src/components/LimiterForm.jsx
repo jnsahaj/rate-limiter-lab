@@ -104,7 +104,7 @@ const LimiterForm = ({ handleFormSubmit }) => {
                     })}
 
                     <Button onClick={() => handleFormSubmit(formData)}>
-                        Submit
+                        Submit & Reset
                     </Button>
                 </>
             )}

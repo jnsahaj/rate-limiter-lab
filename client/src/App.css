@@ -2,3 +2,30 @@ label {
     color: rgba(0, 0, 0, 0.6);
     font-size: 0.9rem;
 }
+
+#root {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.stat-cont {
+    display: flex;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.stat-value {
+    min-width: 50%;
+    display: flex;
+    justify-content: flex-end;
+    font-size: 2rem;
+}
+
+.stat-name {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 0.3rem;
+}

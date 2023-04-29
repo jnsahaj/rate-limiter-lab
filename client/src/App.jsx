@@ -2,18 +2,26 @@ import { useState } from "react";
 import "./App.css";
 import limit from "./services/limiter";
 import LimiterForm from "./components/LimiterForm";
+import useTimer from "./hooks/useTimer";
+import Grid from "@mui/material/Grid";
 
 function App() {
-    const [successfulRequests, setSuccessfulRequests] = useState(0);
+    const [totalRequests, setTotalRequests] = useState(0);
     const [limitedRequests, setLimitedRequests] = useState(0);
+    const { start, reset, isActive, time } = useTimer();
+
+    // Timestamps: firstRequest, lastRequest, lastSuccessfulRequest, firstSuccessfulRequest
 
     const handleLimit = async () => {
         const result = await limit();
         if (result) {
-            setSuccessfulRequests((sr) => sr + 1);
+            setTotalRequests((tr) => tr + 1);
         } else {
-            setSuccessfulRequests((sr) => sr + 1);
+            setTotalRequests((tr) => tr + 1);
             setLimitedRequests((lr) => lr + 1);
+        }
+        if (!isActive) {
+            start();
         }
     };
 
@@ -27,23 +35,55 @@ function App() {
         });
 
         setLimitedRequests(0);
-        setSuccessfulRequests(0);
+        setTotalRequests(0);
+        reset();
     };
 
     return (
         <>
-            <LimiterForm handleFormSubmit={handleLimiterConfigChange} />
-            <div>
-                <div>Total Requests</div>
-                <div>{successfulRequests}</div>
-            </div>
-
-            <div>
-                <div>Limited Requests</div>
-                <div>{limitedRequests}</div>
-            </div>
-
-            <button onClick={handleLimit}>Click</button>
+            <Grid
+                container
+                sx={{
+                    height: "100%",
+                }}
+                alignItems="center"
+            >
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={4}>
+                        <LimiterForm
+                            handleFormSubmit={handleLimiterConfigChange}
+                        />
+                    </Grid>
+                    <Grid
+                        item
+                        xs={8}
+                        display="flex"
+                        alignItems="flex-end"
+                        flexDirection="column"
+                        gap={1}
+                    >
+                        <div className="stat-cont">
+                            <div className="stat-value">
+                                <span>{totalRequests}</span>
+                            </div>
+                            <div className="stat-name">
+                                <span>Total Requests</span>
+                            </div>
+                        </div>
+                        <div className="stat-cont">
+                            <div className="stat-value">
+                                <span>{limitedRequests}</span>
+                            </div>
+                            <div className="stat-name">
+                                <span>Limited Requests</span>
+                            </div>
+                        </div>
+                    </Grid>
+                    <Grid item xs={12} display="flex" justifyContent="center">
+                        <button onClick={handleLimit}>Click</button>
+                    </Grid>
+                </Grid>
+            </Grid>
         </>
     );
 }
