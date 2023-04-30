@@ -1,3 +1,4 @@
+export const FIXED_WINDOW = "fixed_window";
 export const SLIDING_WINDOW = "sliding_window";
 export const TOKEN_BUCKET = "token_bucket";
 
@@ -9,30 +10,52 @@ export const RATE_LIMITER_SCHEMES = {
 };
 
 export const SLIDING_WINDOW_DEFAULTS = {
-    max_requests_per_window: 10,
-    window_size_in_ms: 60000,
+    maxRequestsPerWindow: 10,
+    windowSizeInMs: 60000,
+};
+
+export const FIXED_WINDOW_DEFAULTS = {
+    maxRequestsPerWindow: 10,
+    windowSizeInMs: 60000,
 };
 
 export const TOKEN_BUCKET_DEFAULTS = {
-    bucket_size: 5,
-    refill_rate_in_ms: 1000,
+    bucketSize: 5,
+    refillRateInMs: 1000,
 };
 
 export const LIMITERS_CONFIG = [
+    {
+        title: "Fixed Window",
+        scheme: FIXED_WINDOW,
+        parameters: [
+            {
+                title: "Max Requests Per Window",
+                id: "maxRequestsPerWindow",
+                defaultValue: FIXED_WINDOW_DEFAULTS.maxRequestsPerWindow,
+            },
+            {
+                title: "Window Size",
+                unit: "ms",
+                id: "windowSizeInMs",
+                defaultValue: FIXED_WINDOW_DEFAULTS.windowSizeInMs,
+            },
+        ],
+    },
     {
         title: "Sliding Window",
         scheme: SLIDING_WINDOW,
         parameters: [
             {
                 title: "Max Requests Per Window",
-                id: "max_requests_per_window",
-                defaultValue: SLIDING_WINDOW_DEFAULTS.max_requests_per_window,
+                id: "maxRequestsPerWindow",
+                defaultValue: SLIDING_WINDOW_DEFAULTS.maxRequestsPerWindow,
             },
             {
                 title: "Window Size",
                 unit: "ms",
-                id: "window_size_in_ms",
-                defaultValue: SLIDING_WINDOW_DEFAULTS.window_size_in_ms,
+                id: "windowSizeInMs",
+                defaultValue: SLIDING_WINDOW_DEFAULTS.windowSizeInMs,
             },
         ],
     },
@@ -42,14 +65,14 @@ export const LIMITERS_CONFIG = [
         parameters: [
             {
                 title: "Bucket Size",
-                id: "bucket_size",
-                defaultValue: TOKEN_BUCKET_DEFAULTS.bucket_size,
+                id: "bucketSize",
+                defaultValue: TOKEN_BUCKET_DEFAULTS.bucketSize,
             },
             {
                 title: "Refill Rate",
                 unit: "ms",
-                id: "refill_rate_in_ms",
-                defaultValue: TOKEN_BUCKET_DEFAULTS.refill_rate_in_ms,
+                id: "refillRateInMs",
+                defaultValue: TOKEN_BUCKET_DEFAULTS.refillRateInMs,
             },
         ],
     },
