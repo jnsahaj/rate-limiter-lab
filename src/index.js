@@ -4,7 +4,7 @@ import cors from "cors";
 import { fileURLToPath } from "url";
 import rateLimiter from "./middlewares/rateLimiter.js";
 import redis from "./redis.js";
-import { LIMITERS_CONFIG } from "./constants.js";
+import { FIXED_WINDOW, LIMITERS_CONFIG } from "./constants.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,7 +34,10 @@ app.post("/limit", (req, res) => {
 });
 
 app.get("/limiters", (_, res) => {
-    res.json(LIMITERS_CONFIG);
+    res.json({
+        defaultScheme: FIXED_WINDOW,
+        limiters: LIMITERS_CONFIG,
+    });
 });
 
 app.listen(PORT, () => {

@@ -25,9 +25,13 @@ const LimiterForm = ({ handleFormSubmit }) => {
                 `${import.meta.env.VITE_BASE_URL}/limiters`
             );
             const data = await response.json();
-            setLimiters(data);
-            setSelectedLimiter(data[0]);
-            setFormData({ scheme: data[0].scheme });
+            setLimiters(data.limiters);
+            setFormData({ scheme: data.defaultScheme });
+            setSelectedLimiter(
+                data.limiters.find(
+                    (limiter) => limiter.scheme == data.defaultScheme
+                )
+            );
         };
 
         fetchLimiters();
