@@ -6,6 +6,7 @@ export const DEFAULT_SCHEME = SLIDING_WINDOW;
 
 export const RATE_LIMITER_SCHEMES = {
     SLIDING_WINDOW,
+    FIXED_WINDOW,
     TOKEN_BUCKET,
 };
 

@@ -1,6 +1,5 @@
 import { RateLimiter } from "../rateLimiter.js";
 import redisClient from "../redis.js";
-import { DEFAULT_SCHEME, RATE_LIMITER_SCHEMES } from "../constants.js";
 
 const rateLimiterMiddleware = async (req, res, next) => {
     try {
