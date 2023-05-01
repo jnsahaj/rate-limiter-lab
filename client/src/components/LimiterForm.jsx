@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -9,6 +9,7 @@ import { Button, Container, FormControl } from "@mui/material";
 const LimiterForm = ({ handleFormSubmit }) => {
     const [selectedLimiter, setSelectedLimiter] = useState();
     const [limiters, setLimiters] = useState([]);
+    const [defaultLimiterScheme, setDefaultLimiterScheme] = useState();
 
     const [formData, setFormData] = useState({});
 
@@ -19,42 +20,44 @@ const LimiterForm = ({ handleFormSubmit }) => {
         });
     };
 
+    const handleChangeLimiter = (scheme) => {
+        const selected = limiters.find((limiter) => limiter.scheme === scheme);
+        setSelectedLimiter(selected);
+
+        const tempFormData = {
+            scheme: selected?.scheme,
+        };
+
+        selected?.parameters.forEach((parameter) => {
+            tempFormData[parameter.id] = parameter.defaultValue;
+        });
+
+        setFormData(tempFormData);
+    };
+
     useEffect(() => {
         const fetchLimiters = async () => {
             const response = await fetch(
                 `${import.meta.env.VITE_BASE_URL}/limiters`
             );
             const data = await response.json();
+
+            // Set the default limiter scheme state value
+            setDefaultLimiterScheme(data.defaultScheme);
+
+            // Set the limiters state value
             setLimiters(data.limiters);
-            setFormData({ scheme: data.defaultScheme });
-            setSelectedLimiter(
-                data.limiters.find(
-                    (limiter) => limiter.scheme == data.defaultScheme
-                )
-            );
         };
 
         fetchLimiters();
     }, []);
 
+    // Handle setting the selected limiter when the limiters or default limiter scheme change
     useEffect(() => {
-        const tempFormData = {
-            scheme: selectedLimiter?.scheme,
-        };
-
-        selectedLimiter?.parameters.forEach((parameter) => {
-            tempFormData[parameter.id] = parameter.defaultValue;
-        });
-
-        setFormData(tempFormData);
-    }, [selectedLimiter]);
-
-    const handleChangeLimiter = (event) => {
-        const scheme = event.target.value;
-        const selected = limiters.find((limiter) => limiter.scheme === scheme);
-        setSelectedLimiter(selected);
-        setFormData({ scheme });
-    };
+        if (defaultLimiterScheme && limiters.length > 0) {
+            handleChangeLimiter(defaultLimiterScheme);
+        }
+    }, [defaultLimiterScheme, limiters]);
 
     return (
         <Container maxWidth="xs">
@@ -65,7 +68,9 @@ const LimiterForm = ({ handleFormSubmit }) => {
                         <Select
                             name="scheme"
                             value={selectedLimiter.scheme}
-                            onChange={handleChangeLimiter}
+                            onChange={(event) =>
+                                handleChangeLimiter(event.target.value)
+                            }
                         >
                             {limiters.map((limiter) => {
                                 return (
@@ -89,13 +94,13 @@ const LimiterForm = ({ handleFormSubmit }) => {
                             >
                                 <label>{parameter.title}</label>
                                 <OutlinedInput
+                                    value={formData[parameter?.id]}
                                     onChange={handleFormChange}
                                     endAdornment={
                                         <InputAdornment position="end">
                                             {parameter.unit}
                                         </InputAdornment>
                                     }
-                                    defaultValue={parameter.defaultValue}
                                     inputProps={{
                                         name: parameter?.id,
                                         inputMode: "numeric",
