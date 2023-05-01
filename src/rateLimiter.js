@@ -10,16 +10,21 @@ import {
 import applyDefaults from "./utils/applyDefaults.js";
 
 export const RateLimiter = class {
-    constructor({ redisClient }) {
-        this.redisClient = redisClient;
+    static initialize({ redisClient }) {
+        RateLimiter.redisClient = redisClient;
     }
 
-    async isAllowed({ key, scheme, ...options }) {
-        const limiter = this._getLimiter(scheme, options);
+    static async isAllowed({ key, scheme, ...options }) {
+        const limiter = RateLimiter._getLimiter(scheme, options);
+        RateLimiter.limiter = limiter;
         return limiter.isAllowed(key);
     }
 
-    _getLimiter(scheme = SLIDING_WINDOW, options) {
+    static async removeKey(key) {
+        await RateLimiter.limiter.removeKey(key);
+    }
+
+    static _getLimiter(scheme = SLIDING_WINDOW, options) {
         switch (scheme) {
             case FIXED_WINDOW:
                 const fixedWindowOptions = applyDefaults(
@@ -27,7 +32,7 @@ export const RateLimiter = class {
                     FIXED_WINDOW_DEFAULTS
                 );
                 return new FixedWindowLimiter({
-                    redisClient: this.redisClient,
+                    redisClient: RateLimiter.redisClient,
                     ...fixedWindowOptions,
                 });
             case SLIDING_WINDOW:
@@ -36,7 +41,7 @@ export const RateLimiter = class {
                     SLIDING_WINDOW_DEFAULTS
                 );
                 return new SlidingWindowLimiter({
-                    redisClient: this.redisClient,
+                    redisClient: RateLimiter.redisClient,
                     ...slidingWindowOptions,
                 });
             case TOKEN_BUCKET:
@@ -45,7 +50,7 @@ export const RateLimiter = class {
                     TOKEN_BUCKET_DEFAULTS
                 );
                 return new TokenBucketLimiter({
-                    redisClient: this.redisClient,
+                    redisClient: RateLimiter.redisClient,
                     ...tokenBucketOptions,
                 });
             default:
@@ -77,6 +82,10 @@ class FixedWindowLimiter {
         }
         return isAllowed;
     }
+
+    async removeKey(key) {
+        await this.redisClient.del(key);
+    }
 }
 
 class SlidingWindowLimiter {
@@ -103,6 +112,10 @@ class SlidingWindowLimiter {
         // Return true if the number of entries is less than the maximum allowed
         return count <= this.maxRequestsPerWindow;
     }
+
+    async removeKey(key) {
+        await this.redisClient.del(key);
+    }
 }
 
 const TokenBucketLimiter = class {
@@ -112,10 +125,16 @@ const TokenBucketLimiter = class {
         this.refillRateInMs = refillRateInMs;
     }
 
+    getKeyNames(key) {
+        return {
+            timestampKey: `${key}:lastRefillTimestamp`,
+            bucketKey: `${key}:bucket`,
+        };
+    }
+
     async isAllowed(key) {
         const now = Date.now();
-        const timestampKey = `${key}:lastRefillTimestamp`;
-        const bucketKey = `${key}:bucket`;
+        const { timestampKey, bucketKey } = this.getKeyNames(key);
 
         // Get the timestamp of the last refill
         const lastRefillTimestamp = await this.redisClient.get(timestampKey);
@@ -149,5 +168,11 @@ const TokenBucketLimiter = class {
         } else {
             return false;
         }
+    }
+
+    async removeKey(key) {
+        const { timestampKey, bucketKey } = this.getKeyNames(key);
+
+        await this.redisClient.del(timestampKey, bucketKey);
     }
 };

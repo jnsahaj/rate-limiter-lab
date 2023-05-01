@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import rateLimiter from "./middlewares/rateLimiter.js";
 import redis from "./redis.js";
 import { FIXED_WINDOW, LIMITERS_CONFIG } from "./constants.js";
+import { RateLimiter } from "./rateLimiter.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,8 +29,11 @@ app.get("/limit", rateLimiter, (req, res) => {
 
 app.post("/limit", (req, res) => {
     const limiterParams = req.body;
-    redis.flushdb();
-    redis.hmset("limiterParams", limiterParams);
+    const key = req.ip;
+
+    RateLimiter.removeKey(key);
+
+    redis.hmset(`limiterParams:${key}`, limiterParams);
     res.status(200).json(limiterParams);
 });
 

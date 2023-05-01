@@ -2,11 +2,14 @@ import { RateLimiter } from "../rateLimiter.js";
 import redisClient from "../redis.js";
 
 const rateLimiterMiddleware = async (req, res, next) => {
+    const key = req.ip;
     try {
-        const rateLimiter = new RateLimiter({ redisClient });
-        const limiterParams = await redisClient.hgetall("limiterParams");
+        RateLimiter.initialize({
+            redisClient,
+        });
+        const limiterParams = await redisClient.hgetall(`limiterParams:${key}`);
 
-        let isAllowed = await rateLimiter.isAllowed({
+        let isAllowed = await RateLimiter.isAllowed({
             key: req.ip,
             ...limiterParams,
         });
