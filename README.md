@@ -1,14 +1,18 @@
 # rate-limiter
 
-Simple rate-limiter made using Express and Redis
+Rate Limiting Demo App to showcase multiple Rate Limiting algorithms with request analytics <br />
+- Fixed Window
+- Sliding Window
+- Token Bucket
 
-To run locally at localhost:3000 <br/>
-`docker compose up`
+### Run locally
+Run `docker compose up` <br />
+This will start up a local server at `localhost:3000`
 
-### Future Improvements
+### Improvements
 
--   Improve UI using React
--   Add request analytics
--   Allow for custom tuning
--   Give choice between multiple rate-limiting algorithms
+-   ✔️ Improve UI using React
+-   ✔️ Add request analytics
+-   ✔️ Allow for custom tuning
+-   ✔️ Give choice between multiple rate-limiting algorithms
 -   Distribute servers behing a load-balancer
