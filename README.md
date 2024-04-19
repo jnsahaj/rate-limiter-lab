@@ -1,6 +1,7 @@
 # rate-limiter
 
 Rate Limiting Demo App to showcase multiple Rate Limiting algorithms with request analytics <br />
+Uses Redis as in-memory KV store <br />
 - Fixed Window
 - Sliding Window
 - Token Bucket
